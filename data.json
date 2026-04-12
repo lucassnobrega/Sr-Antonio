@@ -1,0 +1,92 @@
+{
+  "config": {
+    "consultancyName": "LN CONSULTORIA",
+    "consultancyLogo": "",
+    "clientName": "Cliente Exemplo",
+    "clientLogo": "",
+    "heroSubtitle": "Painel Estratégico da Consultoria",
+    "operationName": "Operação Principal",
+    "operationIcon": "🏢"
+  },
+  "items": [
+    {
+      "id": "i1",
+      "title": "Diagnóstico inicial da operação",
+      "pillar": "processos",
+      "category": "Processos",
+      "status": "Concluído",
+      "priority": "Alta",
+      "owner": "Lucas",
+      "summary": "Levantamento dos principais gargalos da operação e definição das prioridades de ataque.",
+      "problem": "Falta de clareza sobre os principais problemas e prioridades do projeto.",
+      "businessImpact": "Dá direção para a consultoria e organiza o plano de ação.",
+      "nextStep": "Avançar para a implantação dos ajustes prioritários.",
+      "docs": []
+    },
+    {
+      "id": "i2",
+      "title": "Plano de ação comercial",
+      "pillar": "marketing",
+      "category": "Marketing",
+      "status": "Em foco",
+      "priority": "Alta",
+      "owner": "Lucas",
+      "summary": "Estruturação das ações comerciais prioritárias para crescimento.",
+      "problem": "A operação não possui uma rotina comercial consistente.",
+      "businessImpact": "Melhora geração de demanda e previsibilidade de vendas.",
+      "nextStep": "Validar calendário e responsáveis.",
+      "docs": []
+    },
+    {
+      "id": "i3",
+      "title": "Organização financeira básica",
+      "pillar": "financeiro",
+      "category": "Finanças",
+      "status": "Em andamento",
+      "priority": "Média",
+      "owner": "Lucas",
+      "summary": "Construção de visão financeira gerencial com foco em decisão.",
+      "problem": "Os números não estão organizados de forma útil para tomada de decisão.",
+      "businessImpact": "Ajuda o cliente a entender margem, despesas e prioridades.",
+      "nextStep": "Consolidar indicadores e rotina de acompanhamento.",
+      "docs": []
+    },
+    {
+      "id": "i4",
+      "title": "Rotina de acompanhamento semanal",
+      "pillar": "pessoas",
+      "category": "Pessoas",
+      "status": "Pendente",
+      "priority": "Média",
+      "owner": "Lucas",
+      "summary": "Definir formato da reunião e indicadores de acompanhamento.",
+      "problem": "As ações não têm cadência de acompanhamento formal.",
+      "businessImpact": "Aumenta execução e controle do plano de ação.",
+      "nextStep": "Implementar primeira reunião semanal.",
+      "docs": []
+    }
+  ],
+  "timeline": [
+    {
+      "id": "t1",
+      "date": "2026-04",
+      "title": "Início da consultoria",
+      "subtitle": "Assinatura e kickoff do projeto",
+      "phase": "Diagnóstico"
+    },
+    {
+      "id": "t2",
+      "date": "2026-05",
+      "title": "Diagnóstico concluído",
+      "subtitle": "Definição das principais frentes prioritárias",
+      "phase": "Estruturação"
+    },
+    {
+      "id": "t3",
+      "date": "2026-06",
+      "title": "Implantação em andamento",
+      "subtitle": "Execução das ações definidas",
+      "phase": "Execução"
+    }
+  ]
+}

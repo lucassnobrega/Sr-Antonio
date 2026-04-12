@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LN CONSULTORIA — Dashboard do Cliente</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#080c14; --panel:#0f1420; --panel2:#141925;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --text:#edf2f7; --muted:#8896a8; --muted2:#6b7a8d;
+  --gold:#c5a572; --gold2:#e8c98a; --gold-bg:rgba(197,165,114,.12);
+  --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --blue:#6366f1; --purple:#a855f7;
+  --brand:#3b52c4; --radius:16px; --shadow:0 20px 50px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#93b4ff;text-decoration:none}a:hover{text-decoration:underline}
+button,input,select,textarea{font:inherit}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
+.hidden{display:none!important}
+.topbar{position:sticky;top:0;z-index:30;height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 22px;background:rgba(8,12,20,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800}.brand-badge{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;box-shadow:0 0 16px rgba(197,165,114,.24);overflow:hidden;flex-shrink:0}.brand-badge img{width:100%;height:100%;object-fit:cover}
+.client-chip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);padding:8px 12px;border-radius:999px;color:var(--muted);font-size:.82rem}
+.client-chip img{width:22px;height:22px;object-fit:cover;border-radius:999px}
+.nav{display:flex;gap:6px;flex-wrap:wrap}.nav button{border:none;background:transparent;color:var(--muted);padding:8px 12px;border-radius:8px;cursor:pointer;transition:.2s}.nav button:hover{background:rgba(255,255,255,.05);color:var(--text)}.nav button.active{background:var(--gold-bg);color:var(--gold)}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}.icon-btn,.primary-btn,.ghost-btn,.danger-btn,.small-btn{border:1px solid var(--line);background:transparent;color:var(--muted);padding:7px 11px;border-radius:8px;cursor:pointer;transition:.2s}.icon-btn:hover,.ghost-btn:hover,.small-btn:hover{background:rgba(255,255,255,.04);border-color:var(--line2);color:var(--text)}.primary-btn{background:#2563eb;border-color:#2563eb;color:#fff}.primary-btn:hover{background:#1d4ed8;border-color:#1d4ed8}.danger-btn{background:rgba(239,68,68,.1);color:#fca5a5;border-color:rgba(239,68,68,.22)}.small-btn{padding:4px 8px;font-size:.76rem}
+.wrap{max-width:1460px;margin:0 auto;padding:26px 22px 60px}
+.page{display:none;animation:fade .2s ease}.page.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{text-align:center;padding:22px 0 8px}.hero-logo{width:70px;height:70px;border-radius:20px;display:grid;place-items:center;margin:0 auto 14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;overflow:hidden;box-shadow:0 0 20px rgba(197,165,114,.18)}.hero-logo img{width:100%;height:100%;object-fit:cover}.hero h1{font-size:2.8rem;font-weight:900;letter-spacing:-.04em;margin-bottom:6px;background:linear-gradient(135deg,var(--gold),var(--gold2),#fff8e8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}.hero p{color:var(--muted)}
+.hero-meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.76rem;color:var(--muted2)}.pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block;margin-right:5px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:11px;margin:22px 0}.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}.stat .num{font-size:1.95rem;font-weight:900;letter-spacing:-.03em}.stat .lbl{margin-top:6px;color:var(--muted);font-size:.78rem}.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.section-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:30px 0 13px;display:flex;align-items:center;gap:12px}.section-title:after{content:'';flex:1;height:1px;background:var(--line)}
+.progress-box,.panel,.chart-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}.progress-row{display:flex;gap:12px;align-items:center;margin:9px 0}.progress-label{width:210px;flex-shrink:0;font-size:.86rem}.progress-bar{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:999px}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--brand),#7f93ff)}.progress-pct{width:40px;text-align:right;color:var(--muted);font-size:.77rem}
+.overview-charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}@media(max-width:860px){.overview-charts{grid-template-columns:1fr}}.chart-card h4{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px}.donut-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.donut-wrap{position:relative;width:105px;height:105px;flex-shrink:0}.donut-wrap canvas{position:absolute;inset:0}.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.donut-center .dc-n{font-size:1.25rem;font-weight:800}.donut-center .dc-l{font-size:.63rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.07em}.donut-legend{display:flex;flex-direction:column;gap:7px;flex:1}.legend-item{display:flex;align-items:center;gap:7px;font-size:.81rem}.legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.brand-card{background:linear-gradient(140deg,#0c1030,#1b2460,#1e2e8c);border:1px solid var(--line);border-radius:20px;padding:22px;cursor:pointer;transition:.2s}.brand-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}.brand-stat-row{display:flex;gap:14px;margin-top:14px}.brand-stat{flex:1;text-align:center}.brand-stat .n{font-size:1.35rem;font-weight:800}.brand-stat .l{font-size:.7rem;color:rgba(255,255,255,.58)}
+.page-head{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start;margin-bottom:18px}.page-head h2{font-size:1.9rem;font-weight:900;letter-spacing:-.03em}.page-head p{margin-top:4px;color:var(--muted)}
+.page-brand{display:flex;align-items:center;gap:12px}.page-brand .brand-badge{width:44px;height:44px}
+.filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.filter input,.filter select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px 11px;outline:none}
+.board-wrap{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+.cat-col{background:var(--panel);border:1px solid var(--line);border-radius:16px;min-width:250px;max-width:280px;overflow:hidden}.cat-head{padding:11px 13px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800;font-size:.82rem}.cat-title{display:inline-flex;align-items:center;gap:8px}.cat-pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-size:.71rem;font-weight:800;border:1px solid transparent}.cat-body{padding:9px;display:flex;flex-direction:column;gap:10px;max-height:76vh;overflow:auto}.cat-count{font-size:.76rem;color:var(--muted)}
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 16px}.subnav button{border:1px solid var(--line);background:transparent;color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer}.subnav button.active{background:var(--brand);border-color:transparent;color:#fff}
+.kanban-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}@media(max-width:1100px){.kanban-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.kanban-grid{grid-template-columns:1fr}}
+.kan-col{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden}.kan-head{padding:11px 15px;font-weight:800;font-size:.86rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.kan-body{padding:9px;display:flex;flex-direction:column;gap:8px;min-height:200px}.done-h{background:rgba(34,197,94,.08);color:#6ee7a0}.focus-h{background:rgba(168,85,247,.1);color:#d8b4fe}.doing-h{background:rgba(245,158,11,.09);color:#fbbf24}.pending-h{background:rgba(239,68,68,.09);color:#fca5a5}
+.item-card{background:rgba(255,255,255,.033);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:.2s}.item-card:hover{transform:translateY(-2px);border-color:var(--line2);background:rgba(255,255,255,.05)}.item-top{display:flex;justify-content:space-between;gap:8px}.item-title{font-size:.89rem;font-weight:800;line-height:1.35;margin-top:7px}.item-meta{margin-top:6px;color:var(--muted);font-size:.77rem;line-height:1.4}.item-docs{margin-top:6px;font-size:.75rem}.item-actions{display:flex;gap:5px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:.71rem;font-weight:700;border-radius:999px;padding:4px 8px}.done{background:rgba(34,197,94,.12);color:#6ee7a0}.focus{background:rgba(168,85,247,.15);color:#d8b4fe}.doing{background:rgba(245,158,11,.13);color:#fbbf24}.pending{background:rgba(239,68,68,.12);color:#fca5a5}.cat-tag{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted)}
+.exec-summary{background:linear-gradient(160deg,rgba(197,165,114,.08),rgba(197,165,114,.025));border:1px solid rgba(197,165,114,.18);border-radius:18px;padding:18px;margin:16px 0 22px}.exec-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:12px}@media(max-width:1100px){.exec-grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.exec-grid{grid-template-columns:1fr}}.exec-card{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:13px;padding:14px}.exec-card h3{margin:0 0 9px;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}.exec-list{margin:0;padding-left:16px;color:var(--text)}.exec-list li{margin:5px 0;font-size:.85rem}.mini-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:13px}@media(max-width:860px){.mini-kpis{grid-template-columns:repeat(3,1fr)}}.mini-kpi{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:11px;padding:11px;text-align:center}.mini-kpi .n{font-size:1.2rem;font-weight:800}.mini-kpi .l{font-size:.7rem;color:var(--muted);margin-top:3px}
+.timeline-list{display:flex;flex-direction:column;gap:11px}.timeline-item{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:13px;padding:14px 14px 14px 18px;position:relative}.timeline-item:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:13px 0 0 13px;background:var(--gold)}.timeline-date{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--gold);font-weight:700}.timeline-title{font-weight:800;font-size:.93rem;margin:.22rem 0}.timeline-sub{color:var(--muted);font-size:.82rem}.timeline-actions{margin-top:9px;display:flex;gap:7px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,4,12,.74);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}.modal-backdrop.show{display:flex}.modal{width:min(980px,100%);max-height:92vh;overflow:auto;background:linear-gradient(180deg,#0f1624,#090d18);border:1px solid rgba(255,255,255,.09);border-radius:22px;box-shadow:var(--shadow)}.modal-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.modal-body{padding:22px}.modal-foot{padding:16px 22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}@media(max-width:860px){.modal-grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.modal-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:.78rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}.field input,.field textarea,.field select{width:100%;background:rgba(255,255,255,.04);color:var(--text);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:10px 13px;outline:none}.field textarea{min-height:96px;resize:vertical}.doc-row{display:grid;grid-template-columns:1fr 1.5fr auto;gap:9px;margin-bottom:9px}@media(max-width:660px){.doc-row{grid-template-columns:1fr}}
+.file-hint{font-size:.72rem;color:var(--muted2)}
+.meta-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.meta-tag{display:inline-flex;align-items:center;gap:5px;font-size:.71rem;font-weight:700;border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.06);border:1px solid var(--line)}.box{margin-top:11px;padding:13px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.025)}.box strong{display:block;margin-bottom:5px;font-size:.78rem;text-transform:uppercase;color:var(--muted)}
+.toast-container{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:9px;z-index:200}.toast{background:#161e2e;border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:11px 15px;font-size:.83rem;box-shadow:0 12px 32px rgba(0,0,0,.45)}
+.empty-state{padding:28px 16px;text-align:center;color:var(--muted2);border:1px dashed rgba(255,255,255,.08);border-radius:12px}
+@media print{.topbar,.top-actions,.filter,.subnav,.item-actions,.timeline-actions,.toast-container{display:none!important}.page{display:block!important}.wrap{padding:0}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <div id="topBadge" class="brand-badge">🏢</div>
+    <div id="topBrandName">LN CONSULTORIA</div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" data-page="overview">Visão Geral</button>
+    <button class="nav-btn" data-page="activities">Atividades</button>
+    <button class="nav-btn" data-page="operation">Operação</button>
+    <button class="nav-btn" data-page="timeline">Linha do Tempo</button>
+  </div>
+  <div class="top-actions">
+    <div id="clientChip" class="client-chip"></div>
+    <button class="icon-btn" onclick="openSettingsModal()" title="Configurações">⚙️</button>
+    <button class="icon-btn" onclick="exportJSON()" title="Baixar data.json">⬇️</button>
+    <button class="icon-btn" onclick="document.getElementById('importInput').click()" title="Importar data.json">⬆️</button>
+    <button class="icon-btn" onclick="loadPublishedVersion(true)" title="Recarregar versão publicada">☁️</button>
+  </div>
+</div>
+<div class="wrap">
+  <section id="page-overview" class="page active"></section>
+  <section id="page-activities" class="page"></section>
+  <section id="page-operation" class="page"></section>
+  <section id="page-timeline" class="page"></section>
+</div>
+<div id="detailModal" class="modal-backdrop"><div class="modal" id="detailContent"></div></div>
+<div id="itemModal" class="modal-backdrop"><div class="modal" id="itemContent"></div></div>
+<div id="settingsModal" class="modal-backdrop"><div class="modal" id="settingsContent"></div></div>
+<div id="timelineModal" class="modal-backdrop"><div class="modal" id="timelineContent"></div></div>
+<div id="toastContainer" class="toast-container"></div>
+<input id="importInput" class="hidden" type="file" accept="application/json" />
+<script>
+const STORAGE_KEY='dashboard_generico_v2_local';
+const TS_KEY='dashboard_generico_v2_ts';
+const DATA_FILE='data.json';
+const ALL_STATUSES=['Concluído','Em foco','Em andamento','Pendente'];
+const PILLARS=['marketing','pessoas','financeiro','processos','expansao'];
+const DEFAULT_DATA={
+  config:{
+    consultancyName:'LN CONSULTORIA',
+    consultancyLogo:'',
+    clientName:'Cliente Exemplo',
+    clientLogo:'',
+    heroSubtitle:'Painel Estratégico da Consultoria',
+    operationName:'Operação Principal',
+    operationIcon:'🏢'
+  },
+  items:[
+    {id:'i1',title:'Diagnóstico inicial da operação',pillar:'processos',category:'Processos',status:'Concluído',priority:'Alta',owner:'Lucas',summary:'Levantamento dos principais gargalos da operação e definição das prioridades de ataque.',problem:'Falta de clareza sobre os principais problemas e prioridades do projeto.',businessImpact:'Dá direção para a consultoria e organiza o plano de ação.',nextStep:'Avançar para a implantação dos ajustes prioritários.',docs:[]},
+    {id:'i2',title:'Plano de ação comercial',pillar:'marketing',category:'Marketing',status:'Em foco',priority:'Alta',owner:'Lucas',summary:'Estruturação das ações comerciais prioritárias para crescimento.',problem:'A operação não possui uma rotina comercial consistente.',businessImpact:'Melhora geração de demanda e previsibilidade de vendas.',nextStep:'Validar calendário e responsáveis.',docs:[]},
+    {id:'i3',title:'Organização financeira básica',pillar:'financeiro',category:'Finanças',status:'Em andamento',priority:'Média',owner:'Lucas',summary:'Construção de visão financeira gerencial com foco em decisão.',problem:'Os números não estão organizados de forma útil para tomada de decisão.',businessImpact:'Ajuda o cliente a entender margem, despesas e prioridades.',nextStep:'Consolidar indicadores e rotina de acompanhamento.',docs:[]},
+    {id:'i4',title:'Rotina de acompanhamento semanal',pillar:'pessoas',category:'Pessoas',status:'Pendente',priority:'Média',owner:'Lucas',summary:'Definir formato da reunião e indicadores de acompanhamento.',problem:'As ações não têm cadência de acompanhamento formal.',businessImpact:'Aumenta execução e controle do plano de ação.',nextStep:'Implementar primeira reunião semanal.',docs:[]}
+  ],
+  timeline:[
+    {id:'t1',date:'2026-04',title:'Início da consultoria',subtitle:'Assinatura e kickoff do projeto',phase:'Diagnóstico'},
+    {id:'t2',date:'2026-05',title:'Diagnóstico concluído',subtitle:'Definição das principais frentes prioritárias',phase:'Estruturação'},
+    {id:'t3',date:'2026-06',title:'Implantação em andamento',subtitle:'Execução das ações definidas',phase:'Execução'}
+  ]
+};
+let publishedData=clone(DEFAULT_DATA);
+let state=clone(DEFAULT_DATA);
+let currentPillar='marketing';
+let activityFilter='';
+let activityStatus='';
+let activityPillar='';
+const charts={};
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function uid(p='id'){return p+'_'+Math.random().toString(36).slice(2,9)}
+function pillarLabel(p){return{marketing:'Marketing',pessoas:'Gestão de Pessoas',financeiro:'Financeiro & CMV',processos:'Processos & Operação',expansao:'Expansão'}[p]||p}
+function pillarIcon(p){return{marketing:'📣',pessoas:'👥',financeiro:'💰',processos:'⚙️',expansao:'🚀'}[p]||'📌'}
+function statusClass(s){return s==='Concluído'?'done':s==='Em foco'?'focus':s==='Em andamento'?'doing':'pending'}
+function normCatClass(cat=''){return String(cat).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function categoryColor(cat=''){const palette={cmv_rentabilidade:['rgba(59,140,95,.12)','#a7f3c4'],expansao:['rgba(195,123,168,.12)','#f9c8eb'],financas:['rgba(197,179,107,.14)','#f3e5ab'],marketing:['rgba(155,127,209,.14)','#d8ccff'],operacional:['rgba(200,138,125,.14)','#ffd7cf'],processos:['rgba(122,162,214,.14)','#dbeaff'],pessoas:['rgba(212,107,107,.14)','#ffd2d2'],tecnologia:['rgba(138,148,168,.16)','#e2e8f0']};const key=normCatClass(cat).toLowerCase().replace(/-/g,'_');return palette[key]||['rgba(255,255,255,.06)', '#dbe3f1']}
+function progressFor(list){if(!list.length) return 0; const pts=list.reduce((a,i)=>a+(i.status==='Concluído'?1:(i.status==='Em foco'||i.status==='Em andamento'?0.5:0)),0); return Math.round((pts/list.length)*100)}
+function countByStatus(list,s){return list.filter(i=>i.status===s).length}
+function sortItems(arr){const pr={Alta:0,Média:1,Baixa:2}; const st={'Concluído':0,'Em foco':1,'Em andamento':2,'Pendente':3}; return [...arr].sort((a,b)=>(st[a.status]-st[b.status])||(pr[a.priority]-pr[b.priority])||a.title.localeCompare(b.title,'pt-BR'))}
+function enrich(data){
+  data.config=data.config||clone(DEFAULT_DATA.config);
+  data.items=(data.items||[]).map(i=>({
+    category:i.category||pillarLabel(i.pillar||'processos'),
+    problem:i.problem||'Gargalo ou risco identificado na operação e/ou gestão que justificou a frente de trabalho.',
+    businessImpact:i.businessImpact||'Fortalece controle, clareza de execução e base para crescimento com mais previsibilidade.',
+    nextStep:i.nextStep||'Consolidar implantação prática, acompanhar aderência e validar resultado na rotina.',
+    docs:i.docs||[],
+    ...i
+  }));
+  data.timeline=data.timeline||[];
+  return data;
+}
+async function loadPublishedData(){
+  try{const res=await fetch(DATA_FILE+'?v='+Date.now(),{cache:'no-store'}); if(!res.ok) throw new Error('Falha ao carregar data.json'); const data=await res.json(); publishedData=enrich(data); return clone(publishedData);}catch(e){console.warn(e); return clone(DEFAULT_DATA)}
+}
+function loadLocalState(){try{const raw=localStorage.getItem(STORAGE_KEY); if(raw) return enrich(JSON.parse(raw));}catch(e){} return clone(publishedData)}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); localStorage.setItem(TS_KEY,Date.now())}
+function getLastUpdated(){const ts=localStorage.getItem(TS_KEY); return ts?new Date(+ts):null}
+function toast(msg){const c=document.getElementById('toastContainer'); const el=document.createElement('div'); el.className='toast'; el.textContent=msg; c.appendChild(el); setTimeout(()=>el.remove(),2800)}
+function switchPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.getElementById('page-'+page).classList.add('active'); document.querySelector(`.nav-btn[data-page="${page}"]`).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function setLogoSlot(el,src,fallbackText){if(!el) return; el.innerHTML=src?`<img src="${esc(src)}" alt="logo" />`:esc(fallbackText)}
+function renderClientChip(){const chip=document.getElementById('clientChip'); if(!chip) return; chip.innerHTML=state.config.clientLogo?`<img src="${esc(state.config.clientLogo)}" alt="cliente" /><span>${esc(state.config.clientName)}</span>`:`<span>${esc(state.config.clientName)}</span>`}
+function applyBranding(){
+  document.title=`${state.config.clientName} — Dashboard`;
+  document.getElementById('topBrandName').textContent=state.config.consultancyName;
+  setLogoSlot(document.getElementById('topBadge'),state.config.consultancyLogo,state.config.operationIcon||'🏢');
+  renderClientChip();
+}
+function drawDonut(id,data,colors){const canvas=document.getElementById(id); if(!canvas) return; if(charts[id]) charts[id].destroy(); charts[id]=new Chart(canvas,{type:'doughnut',data:{datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{cutout:'72%',plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false,animation:{duration:400}}})}
+function buildExecSummary(){
+  const all=state.items; const done=all.filter(i=>i.status==='Concluído'); const focus=all.filter(i=>i.status==='Em foco'); const doing=all.filter(i=>i.status==='Em andamento'); const pending=all.filter(i=>i.status==='Pendente'); const pct=progressFor(all);
+  return `<div class="exec-summary">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem"><div class="brand-badge" style="width:34px;height:34px">${state.config.clientLogo?`<img src="${esc(state.config.clientLogo)}" alt="cliente"/>`:esc(state.config.operationIcon||'🏢')}</div><span>Resumo Executivo</span></div>
+      <div style="display:flex;align-items:center;gap:10px"><div style="font-size:1.7rem;font-weight:900;color:var(--brand)">${pct}%</div><div style="color:var(--muted);font-size:.8rem">progresso<br>geral</div></div>
+    </div>
+    <div class="exec-grid">
+      <div class="exec-card"><h3>✅ Concluídos (${done.length})</h3><ul class="exec-list">${done.slice(0,5).map(i=>`<li>${esc(i.title)}</li>`).join('')||'<li style="color:var(--muted)">Nenhum ainda</li>'}</ul></div>
+      <div class="exec-card" style="border-color:rgba(168,85,247,.24)"><h3>🎯 Em foco (${focus.length})</h3><ul class="exec-list">${focus.slice(0,5).map(i=>`<li>${esc(i.title)}</li>`).join('')||'<li style="color:var(--muted)">Nenhum em foco</li>'}</ul></div>
+      <div class="exec-card"><h3>🔄 Em andamento (${doing.length})</h3><ul class="exec-list">${doing.slice(0,5).map(i=>`<li>${esc(i.title)}</li>`).join('')||'<li style="color:var(--muted)">Nenhum</li>'}</ul></div>
+      <div class="exec-card"><h3>⏳ Próximos (${pending.length})</h3><ul class="exec-list">${pending.slice(0,5).map(i=>`<li>${esc(i.title)}</li>`).join('')||'<li style="color:var(--muted)">Nada pendente</li>'}</ul></div>
+    </div>
+    <div class="mini-kpis">${PILLARS.map(p=>{const list=state.items.filter(i=>i.pillar===p); const n=progressFor(list); return `<div class="mini-kpi"><div class="n" style="color:var(--brand)">${n}%</div><div class="l">${pillarIcon(p)} ${pillarLabel(p)}</div></div>`}).join('')}</div>
+  </div>`;
+}
+function renderOverview(){
+  const all=state.items; const cfg=state.config; const pct=progressFor(all); const lu=getLastUpdated(); const luStr=lu?lu.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}):'versão publicada';
+  const statusCounts=[countByStatus(all,'Concluído'),countByStatus(all,'Em foco'),countByStatus(all,'Em andamento'),countByStatus(all,'Pendente')];
+  const pillarCounts=PILLARS.map(p=>state.items.filter(i=>i.pillar===p).length);
+  document.getElementById('page-overview').innerHTML=`
+    <div class="hero">
+      <div id="heroLogo" class="hero-logo"></div>
+      <h1>${esc(cfg.clientName)}</h1>
+      <p id="heroSubtitle">${esc(cfg.heroSubtitle)}</p>
+      <div class="hero-meta"><span><span class="pulse"></span> consultoria ativa</span><span>• ${all.length} entregas</span><span>• atualizado em ${luStr}</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num gold">${pct}%</div><div class="lbl">Progresso Geral</div></div>
+      <div class="stat"><div class="num" style="color:var(--green)">${statusCounts[0]}</div><div class="lbl">Concluídos</div></div>
+      <div class="stat"><div class="num" style="color:var(--purple)">${statusCounts[1]}</div><div class="lbl">Em foco</div></div>
+      <div class="stat"><div class="num" style="color:var(--amber)">${statusCounts[2]}</div><div class="lbl">Em andamento</div></div>
+      <div class="stat"><div class="num" style="color:var(--red)">${statusCounts[3]}</div><div class="lbl">Pendentes</div></div>
+      <div class="stat"><div class="num">${all.length}</div><div class="lbl">Entregas totais</div></div>
+    </div>
+    <div class="overview-charts">
+      <div class="chart-card">
+        <h4>Distribuição de Status</h4>
+        <div class="donut-row">
+          <div class="donut-wrap"><canvas id="statusChart"></canvas><div class="donut-center"><div class="dc-n gold">${pct}%</div><div class="dc-l">Total</div></div></div>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>${statusCounts[0]} Concluídos</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>${statusCounts[1]} Em foco</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>${statusCounts[2]} Em andamento</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>${statusCounts[3]} Pendentes</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>Distribuição por Pilar</h4>
+        <div class="donut-row">
+          <div class="donut-wrap"><canvas id="pillarChart"></canvas><div class="donut-center"><div class="dc-n">${all.length}</div><div class="dc-l">Entregas</div></div></div>
+          <div class="donut-legend">${PILLARS.map((p,idx)=>`<div class="legend-item"><div class="legend-dot" style="background:${['#3b82f6','#8b5cf6','#f59e0b','#14b8a6','#ef4444'][idx]}"></div>${pillarLabel(p)} ${pillarCounts[idx]}</div>`).join('')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Progresso por Pilar</div>
+    <div class="progress-box">
+      ${PILLARS.map(p=>{const list=state.items.filter(i=>i.pillar===p); const n=progressFor(list); return `<div class="progress-row"><div class="progress-label">${pillarIcon(p)} ${pillarLabel(p)}</div><div class="progress-bar"><div class="progress-fill" style="width:${n}%"></div></div><div class="progress-pct">${n}%</div></div>`}).join('')}
+    </div>
+    <div class="section-title">Operação</div>
+    <div class="brand-card" onclick="switchPage('operation')">
+      <div style="display:flex;align-items:center;gap:12px"><div class="brand-badge" id="overviewOperationLogo" style="width:42px;height:42px"></div><div style="font-size:1.16rem;font-weight:800">${esc(cfg.operationName)}</div></div>
+      <div class="brand-stat-row">
+        <div class="brand-stat"><div class="n">${statusCounts[0]}</div><div class="l">Concluídos</div></div>
+        <div class="brand-stat"><div class="n">${statusCounts[1]}</div><div class="l">Em foco</div></div>
+        <div class="brand-stat"><div class="n">${statusCounts[3]}</div><div class="l">Pendentes</div></div>
+      </div>
+      <div class="progress-bar" style="margin-top:14px;height:5px"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  setLogoSlot(document.getElementById('heroLogo'),cfg.clientLogo,cfg.operationIcon||'🏢');
+  setLogoSlot(document.getElementById('overviewOperationLogo'),cfg.clientLogo,cfg.operationIcon||'🏢');
+  drawDonut('statusChart',statusCounts,['#22c55e','#a855f7','#f59e0b','#ef4444']);
+  drawDonut('pillarChart',pillarCounts,['#3b82f6','#8b5cf6','#f59e0b','#14b8a6','#ef4444']);
+}
+function renderCard(item){const docs=item.docs?.length?`<div class="item-docs">📎 ${item.docs.map(d=>`<a href="${esc(d.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(d.label||d.url)}</a>`).join(' · ')}</div>`:''; return `<div class="item-card" onclick="openDetail('${item.id}')"><div class="item-top"><span class="badge ${statusClass(item.status)}">${esc(item.status)}</span><div class="item-actions"><button class="small-btn" onclick="event.stopPropagation();openItemModal('${item.id}')">✏️</button><button class="small-btn danger-btn" onclick="event.stopPropagation();deleteItem('${item.id}')">🗑️</button></div></div><div class="item-title">${esc(item.title)}</div><div class="item-meta">${pillarIcon(item.pillar)} ${pillarLabel(item.pillar)} · <span class="badge cat-tag">${esc(item.category)}</span></div>${docs}</div>`}
+function renderActivities(){let items=[...state.items]; const q=activityFilter.trim().toLowerCase(); if(q) items=items.filter(i=>i.title.toLowerCase().includes(q)||(i.summary||'').toLowerCase().includes(q)); if(activityStatus) items=items.filter(i=>i.status===activityStatus); if(activityPillar) items=items.filter(i=>i.pillar===activityPillar); items=sortItems(items); const categories=[...new Set(state.items.map(i=>i.category).filter(Boolean))]; const cols=categories.map(cat=>{const [bg,color]=categoryColor(cat); const colItems=items.filter(i=>i.category===cat); return `<div class="cat-col"><div class="cat-head"><div class="cat-title"><span class="cat-pill" style="background:${bg};color:${color};border-color:rgba(255,255,255,.06)">${esc(cat)}</span></div><span class="cat-count">${colItems.length}</span></div><div class="cat-body">${colItems.map(renderCard).join('')||'<div class="empty-state">Nenhuma entrega nesta categoria.</div>'}</div></div>`}).join(''); document.getElementById('page-activities').innerHTML=`<div class="page-head"><div><h2>📋 Todas as Atividades</h2><p>${items.length} de ${state.items.length} entregas</p></div><div><button class="primary-btn" onclick="openItemModal()">➕ Nova entrega</button></div></div><div class="filter"><input placeholder="Pesquisar..." value="${esc(activityFilter)}" oninput="activityFilter=this.value;renderActivities()" /><select onchange="activityStatus=this.value;renderActivities()"><option value="">Todos os status</option>${ALL_STATUSES.map(s=>`<option value="${s}" ${activityStatus===s?'selected':''}>${s}</option>`).join('')}</select><select onchange="activityPillar=this.value;renderActivities()"><option value="">Todos os pilares</option>${PILLARS.map(p=>`<option value="${p}" ${activityPillar===p?'selected':''}>${pillarLabel(p)}</option>`).join('')}</select></div><div class="board-wrap">${cols||'<div class="empty-state">Nenhuma entrega encontrada.</div>'}</div>`}
+function renderOperation(){
+  let filtered=[...state.items];
+  const q=(document.getElementById('operationFilter')?.value||'').trim().toLowerCase();
+  if(q) filtered=filtered.filter(i=>i.title.toLowerCase().includes(q)||(i.summary||'').toLowerCase().includes(q));
+  const items=filtered.filter(i=>i.pillar===currentPillar);
+  const totalPct=progressFor(state.items);
+  document.getElementById('page-operation').innerHTML=`
+    <div class="page-head">
+      <div>
+        <div class="page-brand"><div class="brand-badge" id="operationPageLogo"></div><div><h2>${esc(state.config.operationName)}</h2><p>${state.items.length} entregas · ${totalPct}% concluído</p></div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary-btn" onclick="openItemModal()">➕ Nova entrega</button><input id="operationFilter" placeholder="Filtrar pilar..." value="${esc(q)}" oninput="renderOperation()" style="background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px 11px;outline:none" /></div>
+    </div>
+    <div class="progress-box">${PILLARS.map(p=>{const list=state.items.filter(i=>i.pillar===p); const n=progressFor(list); return `<div class="progress-row"><div class="progress-label">${pillarIcon(p)} ${pillarLabel(p)}</div><div class="progress-bar"><div class="progress-fill" style="width:${n}%"></div></div><div class="progress-pct">${n}%</div></div>`}).join('')}</div>
+    ${buildExecSummary()}
+    <div class="section-title">Pilares</div>
+    <div class="subnav">${PILLARS.map(p=>`<button class="${currentPillar===p?'active':''}" onclick="currentPillar='${p}';renderOperation()">${pillarIcon(p)} ${pillarLabel(p)}</button>`).join('')}</div>
+    <div class="kanban-grid">${ALL_STATUSES.map(s=>{const col=sortItems(items.filter(i=>i.status===s)); const headCls=statusClass(s)+'-h'; return `<div class="kan-col"><div class="kan-head ${headCls}">${s}<span>${col.length}</span></div><div class="kan-body">${col.map(renderCard).join('')||'<div class="empty-state">Nenhuma entrega aqui.</div>'}</div></div>`}).join('')}</div>`;
+  setLogoSlot(document.getElementById('operationPageLogo'),state.config.clientLogo,state.config.operationIcon||'🏢');
+}
+function renderTimeline(){const timeline=[...state.timeline].sort((a,b)=>(a.date||'').localeCompare(b.date||'')); document.getElementById('page-timeline').innerHTML=`<div class="page-head"><div><h2>Linha do Tempo</h2><p>Marcos do projeto</p></div><div><button class="primary-btn" onclick="openTimelineModal()">➕ Novo marco</button></div></div><div class="panel"><div class="timeline-list">${timeline.map(t=>`<div class="timeline-item"><div class="timeline-date">${esc(t.date||'Sem data')}</div><div class="timeline-title">${esc(t.title)}</div><div class="timeline-sub">${esc(t.subtitle||'')}</div><div class="timeline-actions"><button class="small-btn" onclick="openTimelineModal('${t.id}')">✏️ Editar</button><button class="small-btn danger-btn" onclick="deleteTimeline('${t.id}')">🗑️ Excluir</button></div></div>`).join('')||'<div class="empty-state">Nenhum marco cadastrado.</div>'}</div></div>`}
+function renderAll(){applyBranding(); renderOverview(); renderActivities(); renderOperation(); renderTimeline()}
+function openDetail(id){const item=state.items.find(i=>i.id===id); if(!item) return; document.getElementById('detailContent').innerHTML=`<div class="modal-head"><div><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="badge ${statusClass(item.status)}">${esc(item.status)}</span><span class="badge cat-tag">${esc(item.category)}</span></div><h3 style="margin-top:8px;font-size:1.55rem">${esc(item.title)}</h3></div><button class="icon-btn" onclick="closeModal('detailModal')">✕</button></div><div class="modal-body"><div class="meta-row"><span class="meta-tag">${pillarIcon(item.pillar)} ${pillarLabel(item.pillar)}</span>${item.owner?`<span class="meta-tag">👤 ${esc(item.owner)}</span>`:''}${item.priority?`<span class="meta-tag">⚡ ${esc(item.priority)}</span>`:''}</div><div class="box"><strong>Resumo</strong>${esc(item.summary)}</div><div class="box"><strong>Problema / Gargalo</strong>${esc(item.problem)}</div><div class="box"><strong>Impacto no Negócio</strong>${esc(item.businessImpact)}</div><div class="box"><strong>Próximo Passo</strong>${esc(item.nextStep)}</div>${item.docs?.length?`<div class="box"><strong>Documentos</strong>${item.docs.map(d=>`<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.label||d.url)}</a>`).join(' · ')}</div>`:''}</div><div class="modal-foot"><button class="ghost-btn" onclick="closeModal('detailModal');openItemModal('${item.id}')">Editar</button><button class="icon-btn" onclick="closeModal('detailModal')">Fechar</button></div>`; document.getElementById('detailModal').classList.add('show')}
+function openItemModal(id=''){const item=id?state.items.find(i=>i.id===id):null; const docs=(item?.docs?.length?item.docs:[{label:'',url:''}]).map(d=>`<div class="doc-row"><input class="doc-label" placeholder="Rótulo" value="${esc(d.label||'')}" /><input class="doc-url" placeholder="URL" value="${esc(d.url||'')}" /><button class="small-btn danger-btn" onclick="this.parentElement.remove()">✕</button></div>`).join(''); document.getElementById('itemContent').innerHTML=`<div class="modal-head"><div><div style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">${item?'Editar':'Nova'} entrega</div><h3 style="margin-top:8px;font-size:1.55rem">${item?esc(item.title):'Nova entrega'}</h3></div><button class="icon-btn" onclick="closeModal('itemModal')">✕</button></div><div class="modal-body"><div class="modal-grid"><div class="field" style="grid-column:span 2"><label>Título</label><input id="i_title" value="${esc(item?.title||'')}" /></div><div class="field"><label>Status</label><select id="i_status">${ALL_STATUSES.map(s=>`<option value="${s}" ${item?.status===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="field"><label>Prioridade</label><select id="i_priority">${['Alta','Média','Baixa'].map(s=>`<option value="${s}" ${item?.priority===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="field"><label>Pilar</label><select id="i_pillar">${PILLARS.map(p=>`<option value="${p}" ${item?.pillar===p?'selected':''}>${pillarLabel(p)}</option>`).join('')}</select></div><div class="field"><label>Categoria</label><input id="i_category" value="${esc(item?.category||'')}" /></div><div class="field" style="grid-column:span 2"><label>Responsável</label><input id="i_owner" value="${esc(item?.owner||'')}" /></div><div class="field" style="grid-column:1/-1"><label>Resumo</label><textarea id="i_summary">${esc(item?.summary||'')}</textarea></div><div class="field" style="grid-column:1/-1"><label>Problema / Gargalo</label><textarea id="i_problem">${esc(item?.problem||'')}</textarea></div><div class="field" style="grid-column:1/-1"><label>Impacto no Negócio</label><textarea id="i_businessImpact">${esc(item?.businessImpact||'')}</textarea></div><div class="field" style="grid-column:1/-1"><label>Próximo Passo</label><textarea id="i_nextStep">${esc(item?.nextStep||'')}</textarea></div></div><div style="margin-top:18px;border-top:1px solid var(--line);padding-top:18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong style="font-size:.85rem;color:var(--muted)">Documentos</strong><button class="ghost-btn" onclick="addDocRow()">+ documento</button></div><div id="docsWrap">${docs}</div></div></div><div class="modal-foot"><button class="danger-btn" ${item?'':'disabled'} onclick="deleteItem('${item?.id||''}');closeModal('itemModal')">Excluir</button><div style="display:flex;gap:8px"><button class="ghost-btn" onclick="closeModal('itemModal')">Cancelar</button><button class="primary-btn" onclick="saveItem('${item?.id||''}')">Salvar</button></div></div>`; document.getElementById('itemModal').classList.add('show')}
+function addDocRow(){document.getElementById('docsWrap').insertAdjacentHTML('beforeend',`<div class="doc-row"><input class="doc-label" placeholder="Rótulo" /><input class="doc-url" placeholder="URL" /><button class="small-btn danger-btn" onclick="this.parentElement.remove()">✕</button></div>`)}
+function saveItem(id=''){const docs=[...document.querySelectorAll('#docsWrap .doc-row')].map(row=>({label:row.querySelector('.doc-label').value.trim(),url:row.querySelector('.doc-url').value.trim()})).filter(d=>d.label||d.url); const next={id:id||uid('item'),title:document.getElementById('i_title').value.trim(),status:document.getElementById('i_status').value,priority:document.getElementById('i_priority').value,pillar:document.getElementById('i_pillar').value,category:document.getElementById('i_category').value.trim()||pillarLabel(document.getElementById('i_pillar').value),owner:document.getElementById('i_owner').value.trim(),summary:document.getElementById('i_summary').value.trim(),problem:document.getElementById('i_problem').value.trim(),businessImpact:document.getElementById('i_businessImpact').value.trim(),nextStep:document.getElementById('i_nextStep').value.trim(),docs}; if(!next.title){toast('Preencha o título da entrega');return} const idx=state.items.findIndex(i=>i.id===next.id); if(idx>=0) state.items[idx]=next; else state.items.push(next); saveState(); renderAll(); closeModal('itemModal'); toast('Entrega salva. Exporte o data.json para publicar.')}
+function deleteItem(id){if(!id) return; if(!confirm('Excluir esta entrega?')) return; state.items=state.items.filter(i=>i.id!==id); saveState(); renderAll(); closeModal('itemModal'); closeModal('detailModal'); toast('Entrega excluída.')}
+function openTimelineModal(id=''){const t=id?state.timeline.find(x=>x.id===id):null; document.getElementById('timelineContent').innerHTML=`<div class="modal-head"><div><div style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">${t?'Editar':'Novo'} marco</div><h3 style="margin-top:8px;font-size:1.55rem">${t?esc(t.title):'Novo marco'}</h3></div><button class="icon-btn" onclick="closeModal('timelineModal')">✕</button></div><div class="modal-body"><div class="modal-grid"><div class="field"><label>Data</label><input id="t_date" value="${esc(t?.date||'')}" placeholder="2026-04" /></div><div class="field" style="grid-column:span 3"><label>Título</label><input id="t_title" value="${esc(t?.title||'')}" /></div><div class="field" style="grid-column:1/-1"><label>Subtítulo</label><textarea id="t_subtitle">${esc(t?.subtitle||'')}</textarea></div><div class="field" style="grid-column:1/-1"><label>Fase</label><input id="t_phase" value="${esc(t?.phase||'')}" /></div></div></div><div class="modal-foot"><button class="danger-btn" ${t?'':'disabled'} onclick="deleteTimeline('${t?.id||''}');closeModal('timelineModal')">Excluir</button><div style="display:flex;gap:8px"><button class="ghost-btn" onclick="closeModal('timelineModal')">Cancelar</button><button class="primary-btn" onclick="saveTimeline('${t?.id||''}')">Salvar</button></div></div>`; document.getElementById('timelineModal').classList.add('show')}
+function saveTimeline(id=''){const next={id:id||uid('tl'),date:document.getElementById('t_date').value.trim(),title:document.getElementById('t_title').value.trim(),subtitle:document.getElementById('t_subtitle').value.trim(),phase:document.getElementById('t_phase').value.trim()}; if(!next.title){toast('Preencha o título do marco');return} const idx=state.timeline.findIndex(t=>t.id===next.id); if(idx>=0) state.timeline[idx]=next; else state.timeline.push(next); saveState(); renderAll(); closeModal('timelineModal'); toast('Marco salvo. Exporte o data.json para publicar.')}
+function deleteTimeline(id){if(!id) return; if(!confirm('Excluir este marco?')) return; state.timeline=state.timeline.filter(t=>t.id!==id); saveState(); renderAll(); closeModal('timelineModal'); toast('Marco excluído.')}
+function fileToDataUrl(file){return new Promise((resolve,reject)=>{const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=reject; reader.readAsDataURL(file);})}
+function openSettingsModal(){const c=state.config; document.getElementById('settingsContent').innerHTML=`<div class="modal-head"><div><div style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Configurações</div><h3 style="margin-top:8px;font-size:1.55rem">Identidade do cliente</h3></div><button class="icon-btn" onclick="closeModal('settingsModal')">✕</button></div><div class="modal-body"><div class="modal-grid"><div class="field" style="grid-column:span 2"><label>Nome da consultoria</label><input id="c_consultancyName" value="${esc(c.consultancyName)}" /></div><div class="field" style="grid-column:span 2"><label>Nome do cliente</label><input id="c_clientName" value="${esc(c.clientName)}" /></div><div class="field" style="grid-column:span 2"><label>Subtítulo</label><input id="c_heroSubtitle" value="${esc(c.heroSubtitle)}" /></div><div class="field"><label>Nome da operação</label><input id="c_operationName" value="${esc(c.operationName)}" /></div><div class="field"><label>Ícone</label><input id="c_operationIcon" value="${esc(c.operationIcon)}" /></div><div class="field" style="grid-column:span 2"><label>Logo da consultoria (URL)</label><input id="c_consultancyLogo" value="${esc(c.consultancyLogo||'')}" placeholder="https://..." /></div><div class="field" style="grid-column:span 2"><label>Logo do cliente (URL)</label><input id="c_clientLogo" value="${esc(c.clientLogo||'')}" placeholder="https://..." /></div><div class="field" style="grid-column:span 2"><label>Upload logo da consultoria</label><input id="c_consultancyLogoFile" type="file" accept="image/*" /><div class="file-hint">Se escolher uma imagem aqui, ela substitui a URL.</div></div><div class="field" style="grid-column:span 2"><label>Upload logo do cliente</label><input id="c_clientLogoFile" type="file" accept="image/*" /><div class="file-hint">Se escolher uma imagem aqui, ela substitui a URL.</div></div></div></div><div class="modal-foot"><button class="ghost-btn" onclick="closeModal('settingsModal')">Cancelar</button><button class="primary-btn" onclick="saveSettingsModal()">Salvar</button></div>`; document.getElementById('settingsModal').classList.add('show')}
+async function saveSettingsModal(){
+  let consultancyLogo=document.getElementById('c_consultancyLogo').value.trim();
+  let clientLogo=document.getElementById('c_clientLogo').value.trim();
+  const consultancyFile=document.getElementById('c_consultancyLogoFile').files[0];
+  const clientFile=document.getElementById('c_clientLogoFile').files[0];
+  if(consultancyFile) consultancyLogo=await fileToDataUrl(consultancyFile);
+  if(clientFile) clientLogo=await fileToDataUrl(clientFile);
+  state.config={consultancyName:document.getElementById('c_consultancyName').value.trim(),clientName:document.getElementById('c_clientName').value.trim(),heroSubtitle:document.getElementById('c_heroSubtitle').value.trim(),operationName:document.getElementById('c_operationName').value.trim(),operationIcon:document.getElementById('c_operationIcon').value.trim()||'🏢',consultancyLogo,clientLogo};
+  saveState(); renderAll(); closeModal('settingsModal'); toast('Configurações salvas. Exporte o data.json para publicar.');
+}
+function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='data.json'; a.click(); URL.revokeObjectURL(a.href); toast('data.json baixado.')}
+function importJSON(file){const reader=new FileReader(); reader.onload=()=>{try{state=enrich(JSON.parse(reader.result)); saveState(); renderAll(); toast('data.json importado.')}catch(e){alert('Arquivo inválido.')}}; reader.readAsText(file,'utf-8')}
+async function loadPublishedVersion(showToast=false){state=clone(await loadPublishedData()); saveState(); renderAll(); if(showToast) toast('Versão publicada carregada.')}
+document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>switchPage(btn.dataset.page)));
+document.getElementById('importInput').addEventListener('change',e=>{const f=e.target.files[0]; if(f) importJSON(f); e.target.value=''});
+window.addEventListener('click',e=>{['detailModal','itemModal','settingsModal','timelineModal'].forEach(id=>{const el=document.getElementById(id); if(e.target===el) el.classList.remove('show')})});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){['detailModal','itemModal','settingsModal','timelineModal'].forEach(id=>closeModal(id))}});
+(async function init(){publishedData=await loadPublishedData(); state=loadLocalState(); renderAll();})();
+</script>
+</body>
+</html>
